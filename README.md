@@ -2,7 +2,7 @@
 
 A live, instantly-updating calculator that recommends optimal sleep and wake times based on the body's natural 90-minute sleep cycles, with age-based recommendations from the National Sleep Foundation. Built with **Tailwind CSS** and **vanilla JavaScript** — no build step required.
 
-> **Live demo:** _add your deployed URL here_
+> **Live demo:** (https://69f608a7ff390fadea3d5bb5--brilliant-entremet-56c326.netlify.app)
 
 ---
 
@@ -57,48 +57,6 @@ sleepsync/
 └── README.md
 ```
 
-## Run locally
-
-No build step. Just open the file:
-
-```bash
-# Option 1 — open directly
-open index.html        # macOS
-xdg-open index.html    # Linux
-start index.html       # Windows
-
-# Option 2 — quick local server (recommended for canvas + fonts)
-python3 -m http.server 8000
-# then visit http://localhost:8000
-```
-
-## Deploy
-
-Three options, fastest first.
-
-### Netlify Drop (no account needed for preview, ~2 minutes)
-1. Visit https://app.netlify.com/drop
-2. Drag the `sleepsync` folder into the page.
-3. Netlify gives you a live URL within seconds.
-
-### Vercel
-```bash
-npm i -g vercel
-cd sleepsync
-vercel
-```
-
-### GitHub Pages
-```bash
-cd sleepsync
-git init
-git add .
-git commit -m "SleepSync"
-git branch -M main
-git remote add origin https://github.com/<your-username>/sleepsync.git
-git push -u origin main
-```
-Then enable **Pages → Deploy from branch → main / root** in the repository settings.
 
 ## Tech notes
 
