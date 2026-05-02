@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SleepSync — find your perfect bedtime. Live calculator that uses 90-minute sleep cycles plus age-based sleep recommendations to wake you refreshed." />
+  <meta name="theme-color" content="#FAFAF7" />
+
+  <title>SleepSync — Find your perfect bedtime</title>
+
+  <!-- Tailwind via Play CDN (utility classes) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+
+  <!-- Fonts: Inter (UI), Plus Jakarta Sans (display), Sora (numbers), JetBrains Mono (mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Custom design system -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ss_theme');
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+
+<body>
+  <!-- Aurora gradient background (gives glass surfaces something to refract) -->
+  <div class="bg-aurora" aria-hidden="true">
+    <span class="aurora a1"></span>
+    <span class="aurora a2"></span>
+    <span class="aurora a3"></span>
+  </div>
+
+  <!-- ====================== Header ====================== -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#" class="brand" aria-label="SleepSync — home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </span>
+        <span>Sleep<span class="brand-accent">Sync</span></span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#calculator">Calculator</a>
+        <a href="#science">How it works</a>
+        <a href="#tips">Tips</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle dark mode">
+        <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ====================== Calculator (top, the project) ====================== -->
+  <section id="calculator" class="calc-section">
+    <div class="container">
+      <div class="hero-row">
+        <div class="hero-text">
+          <p class="eyebrow calc-eyebrow">
+            <span class="live-dot" aria-hidden="true"></span>
+            Updates as you type
+          </p>
+          <h1 class="headline">
+            Find your perfect <em>bedtime!</em>
+          </h1>
+          <p class="lede">
+            SleepSync uses 90-minute sleep cycles and your age to recommend exactly when to sleep —
+            or when to wake — so you rise sharp instead of groggy.
+          </p>
+        </div>
+
+        <!-- 3D glass orb: shows live total sleep duration of selected result -->
+        <div class="orb-wrap" aria-hidden="true">
+          <div class="orb-shadow"></div>
+          <div id="glassOrb" class="glass-orb">
+            <div class="orb-shine"></div>
+            <div class="orb-rim"></div>
+            <div class="orb-content">
+              <div class="orb-eyebrow">total sleep</div>
+              <div id="orbDuration" class="orb-duration">7h 30m</div>
+              <div id="orbCycles" class="orb-meta">5 cycles · best</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The calculator -->
+      <div class="calc-card glass-card fade-in" role="region" aria-label="SleepSync calculator">
+        <div class="calc-card-header">
+          <div id="modeTabs" class="seg" role="tablist" aria-label="Calculator mode">
+            <button data-mode="wake" class="seg-btn active" role="tab" aria-selected="true">Wake up at</button>
+            <button data-mode="bed"  class="seg-btn" role="tab" aria-selected="false">Sleep at</button>
+            <button data-mode="now"  class="seg-btn" role="tab" aria-selected="false">Sleep now</button>
+          </div>
+
+          <div class="seg" role="tablist" aria-label="Time format">
+            <button data-fmt="12" class="seg-btn active">12-hour</button>
+            <button data-fmt="24" class="seg-btn">24-hour</button>
+          </div>
+        </div>
+
+        <div class="calc-body">
+          <!-- Input pane -->
+          <div class="calc-input-pane">
+            <label id="inputLabel" class="field-label" for="timeInput">Wake-up time</label>
+
+            <!-- "Display screen" input -->
+            <div class="time-input-row">
+              <input id="timeInput" type="time" value="07:00" class="time-input" aria-label="Time" />
+              <span id="nowBadge" class="now-pill hidden">
+                Now <span id="nowText" class="font-mono">--:--</span>
+              </span>
+            </div>
+
+            <div class="preset-row" id="presets" aria-label="Quick presets"></div>
+
+            <!-- Slider -->
+            <div class="slider-row">
+              <div class="slider-head">
+                <label for="fallAsleep" class="field-label" style="margin-bottom:0">
+                  Time to fall asleep
+                </label>
+                <span id="fallAsleepVal" class="slider-val">14 min</span>
+              </div>
+              <input id="fallAsleep" type="range" min="0" max="45" step="1" value="14" />
+              <div class="flex between mt-2 subtle font-mono" style="font-size:10px">
+                <span>0</span><span>15</span><span>30</span><span>45</span>
+              </div>
+            </div>
+
+            <!-- Age + recommendation -->
+            <div class="age-row">
+              <div class="age-input-block">
+                <label for="ageInput" class="field-label">Your age</label>
+                <div class="age-input-wrap">
+                  <input id="ageInput" type="number" min="0" max="120" value="22" inputmode="numeric" class="age-input" aria-describedby="ageRec" />
+                  <span class="age-unit">years</span>
+                </div>
+              </div>
+
+              <div id="ageRec" class="age-rec glass-chip" aria-live="polite">
+                <div class="age-rec-label" id="ageGroup">Young adult</div>
+                <div class="age-rec-value" id="ageRecValue">7–9 hours</div>
+                <div class="age-rec-meta" id="ageRecMeta">recommended each night</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results pane -->
+          <div class="calc-results-pane">
+            <div class="results-head">
+              <div class="results-title" id="resultsTitle">Recommended bedtimes</div>
+              <div class="subtle" style="font-size:12px">Best <span aria-hidden="true">→</span> minimum</div>
+            </div>
+
+            <div id="resultsGrid" class="results-grid" role="list"></div>
+
+            <div id="bestSummary" class="best-summary glass-chip hidden">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+              <div id="bestSummaryText"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== Visualization ====================== -->
+  <section id="visualize">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Your night, mapped</span>
+        <h2>What happens while you're asleep.</h2>
+        <p>
+          Your brain cycles through light, deep, and REM sleep — about every 90 minutes.
+          Hover any result above to see that night drawn out below.
+        </p>
+      </div>
+
+      <div class="viz glass-card">
+        <div class="viz-head">
+          <div class="viz-legend" aria-hidden="true">
+            <span class="legend-awake"><i></i>Awake</span>
+            <span class="legend-rem"><i></i>REM</span>
+            <span class="legend-light"><i></i>Light</span>
+            <span class="legend-deep"><i></i>Deep</span>
+          </div>
+          <div id="vizRange" class="font-mono subtle" style="font-size:12px">—</div>
+        </div>
+
+        <canvas id="cycleCanvas" height="300" aria-label="Sleep cycle chart"></canvas>
+        <div class="viz-ticks" id="vizTicks"></div>
+
+        <div class="viz-stats">
+          <div class="stat-card">
+            <div class="label">Bedtime</div>
+            <div class="value" id="vizBedtime">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Wake time</div>
+            <div class="value" id="vizWake">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Cycles</div>
+            <div class="value" id="vizCycles">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Total sleep</div>
+            <div class="value" id="vizTotal">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== Science ====================== -->
+  <section id="science">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">The science</span>
+        <h2>Why ninety minutes.</h2>
+        <p>
+          Sleep isn't a flat state — it's a structured journey. Each cycle takes you from
+          light sleep down into deep sleep, then up into REM, and back. The math behind SleepSync
+          follows the same pattern your brain does every night.
+        </p>
+      </div>
+
+      <div class="card-grid cols-4">
+        <article class="card glass-card">
+          <div class="card-num">01</div>
+          <h3>The 90-minute loop</h3>
+          <p>Adults cycle through four sleep stages — N1, N2, N3 (deep), and REM — repeating roughly every 90 minutes throughout the night.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">02</div>
+          <h3>Wake at the end</h3>
+          <p>Waking between cycles, in light sleep, feels effortless. Cutting deep sleep short is what causes that heavy, foggy feeling.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">03</div>
+          <h3>REM gets longer</h3>
+          <p>Deep sleep dominates the early night; REM dominates the late night. That's why losing the last two hours of sleep hurts so much.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">04</div>
+          <h3>Aim for five or six</h3>
+          <p>Adults need 7.5–9 hours — that's 5 to 6 cycles. Below 4 cycles, recovery and cognitive performance noticeably suffer.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== Tips ====================== -->
+  <section id="tips">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Better sleep</span>
+        <h2>Six habits that actually help.</h2>
+        <p>Small, consistent changes outperform any sleep tracker or supplement.</p>
+      </div>
+
+      <div class="card-grid cols-3">
+        <article class="card glass-card">
+          <div class="card-num">A</div>
+          <h3>Anchor your wake time</h3>
+          <p>Wake at the same time daily — including weekends. Consistency is the strongest signal for your circadian rhythm.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">B</div>
+          <h3>Morning light, ten minutes</h3>
+          <p>Sunlight within an hour of waking sets your internal clock and makes falling asleep that night much easier.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">C</div>
+          <h3>Caffeine cutoff: 2 PM</h3>
+          <p>Caffeine has a six-hour half-life. The afternoon coffee is still in your system at midnight.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">D</div>
+          <h3>Cool, dark, quiet</h3>
+          <p>18–20 °C, blackout curtains, and earplugs or white noise. Your bedroom should feel like a cave.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">E</div>
+          <h3>Phone outside the bedroom</h3>
+          <p>Or at least face-down across the room. Notifications and blue light wreck the start of your night.</p>
+        </article>
+        <article class="card glass-card">
+          <div class="card-num">F</div>
+          <h3>Wind-down ritual</h3>
+          <p>A simple 20-minute routine — read, stretch, shower — tells your brain it's time to power down.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== FAQ ====================== -->
+  <section id="faq">
+    <div class="container" style="max-width:780px">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>Common questions.</h2>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item glass-card">
+          <summary>
+            Are sleep cycles really exactly 90 minutes?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <p>Cycle length varies — adults average 70 to 110 minutes. SleepSync uses 90 because it's the sweet-spot average for most adults.</p>
+        </details>
+        <details class="faq-item glass-card">
+          <summary>
+            How does the age recommendation work?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <p>The age panel uses the National Sleep Foundation's published age-based recommendations. As you change your age, SleepSync also tells you whether the bedtime you've selected matches that range.</p>
+        </details>
+        <details class="faq-item glass-card">
+          <summary>
+            Why 14 minutes to fall asleep?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <p>14 minutes is the population average sleep latency. Faster than that often signals sleep deprivation; much slower can suggest anxiety or being under-tired. The slider lets you tune it to yourself.</p>
+        </details>
+        <details class="faq-item glass-card">
+          <summary>
+            Should I always aim for six cycles?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <p>Five to six is the sweet spot for adults. Teens often need six or more. If you can only fit four, choose four full cycles over a half-cycle — waking mid-cycle is what causes grogginess.</p>
+        </details>
+        <details class="faq-item glass-card">
+          <summary>
+            Does this replace a sleep tracker?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <p>No. SleepSync is a planning tool, not a measurement tool. For chronic sleep issues, consult a sleep specialist or use a clinically validated device.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== Footer ====================== -->
+  <footer class="site-footer">
+    <div class="container row">
+      <div>SleepSync · <span class="font-mono">90 min × 5 = 7h 30m</span></div>
+      <div>Built with Tailwind CSS &amp; vanilla JavaScript · <span id="year"></span></div>
+    </div>
+  </footer>
+
+  <!-- App logic -->
+  <script src="js/app.js" defer></script>
+</body>
+</html>
